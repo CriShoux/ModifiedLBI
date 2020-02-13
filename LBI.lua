@@ -611,7 +611,7 @@ local function createWrapper(cache, upvalues)
 			local stack = stack;
 
 			local indices = {};
-			local new_upvals = setmetatable({},
+			local newUpvals = setmetatable({},
 				{
 					__index = function(t, k)
 						local upval = indices[k];
@@ -633,7 +633,7 @@ local function createWrapper(cache, upvalues)
 				IP = IP + 1
 			end;
 
-			local func = createWrapper(proto, new_upvals);
+			local func = createWrapper(proto, newUpvals);
 			stack[instruction.A] = func;
 		end,
 		[37] = function(instruction) -- VARARG
@@ -662,31 +662,30 @@ local function createWrapper(cache, upvalues)
 	end;
 
 	local function func(...)
-		local local_stack = {};
-		local ghost_stack = {};
+		local localStack = {};
+		local ghostStack = {};
 
 		top = -1
-		stack = setmetatable(local_stack, {
-			__index = ghost_stack;
+		stack = setmetatable(localStack, {
+			__index = ghostStack;
 			__newindex = function(t, k, v)
 				if k > top and v then
 					top = k
 				end
-				ghost_stack[k] = v
+				ghostStack[k] = v
 			end;
 		})
 		local args = {...};
 		vararg = {}
 		varargSize = select("#", ...) - 1;
 		for i = 0, varargSize do
-			local_stack[i] = args[i+1];
+			localStack[i] = args[i+1];
 			vararg[i] = args[i+1];
 		end;
 
 		environment = getfenv();
 		IP = 1;
-		local thread = coroutine.create(runInstructions);
-		local a, b = coroutine.resume(thread);
+		local a, b = coroutine.resume(coroutine.create(runInstructions));
 
 		if a then
 			if b then
@@ -696,10 +695,7 @@ local function createWrapper(cache, upvalues)
 		else
 			local name = cache.name;
 			local line = cache.debug.lines[IP];
-			local err  = b:gsub("(.-:)", "");
-			local output = "";
-
-			output = output .. (name and name .. ":" or "") .. (line and line .. ":" or "") .. b;
+			local output = (name and name .. ":" or "") .. (line and line .. ":" or "") .. b;
 			
 			error(output, 0);
 		end
