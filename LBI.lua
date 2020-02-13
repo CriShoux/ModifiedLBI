@@ -78,7 +78,6 @@ local function decodeBytecode(bytecode)
     end;
 
 	local function decodeChunk()
-		local chunk;
 		local instructions = {};
 		local constants = {};
 		local prototypes = {};
@@ -86,7 +85,7 @@ local function decodeBytecode(bytecode)
 			lines = {}
 		};
 
-		chunk = {
+		local chunk = {
 			instructions = instructions;
 			constants = constants;
 			prototypes = prototypes;
@@ -96,14 +95,14 @@ local function decodeBytecode(bytecode)
 		local num;
 
 		chunk.name = getString();
-		chunk.first_line = getInt();
-		chunk.last_line = getInt();
+		chunk.firstLine = getInt();
+		chunk.lastLine = getInt();
 
         if chunk.name then chunk.name = chunk.name:sub(1, -2); end
 
 		chunk.upvalues = getInt8();
 		chunk.arguments = getInt8();
-		chunk.varg = getInt8();
+		chunk.vararg = getInt8();
 		chunk.stack = getInt8();
 
 		-- Decode Instructions
@@ -205,7 +204,7 @@ local function decodeBytecode(bytecode)
 		getInt8();
 		bigEndian = (getInt8() == 0);
         intSize = getInt8();
-        sizeT   = getInt8();
+        sizeT = getInt8();
 
         if intSize == 4 then
             getInt = getInt32;
@@ -230,9 +229,7 @@ local function decodeBytecode(bytecode)
 end;
 
 local function handleReturn(...)
-	local c = select("#", ...);
-	local t = {...};
-	return c, t;
+	return select("#", ...), {...};
 end;
 
 local function createWrapper(cache, upvalues)
@@ -245,7 +242,7 @@ local function createWrapper(cache, upvalues)
 	local IP = 1;
 	local vararg, varargSize;
 
-	local opcode_funcs = {
+	local opcodeFuncs = {
 		[0] = function(instruction)	-- MOVE
 			stack[instruction.A] = stack[instruction.B];
 		end,
@@ -657,7 +654,7 @@ local function createWrapper(cache, upvalues)
 		while true do
 			instruction = instructions[IP];
 			IP = IP + 1;
-			a, b = opcode_funcs[instruction.opcode](instruction);
+			a, b = opcodeFuncs[instruction.opcode](instruction);
 			if a then
 				return b;
 			end;
