@@ -661,17 +661,17 @@ local function createWrapper(cache, upvalues)
 			__index = ghostStack;
 			__newindex = function(t, k, v)
 				if k > top and v then
-					top = k
-				end
-				ghostStack[k] = v
+					top = k;
+				end;
+				ghostStack[k] = v;
 			end;
 		})
 		local args = {...};
-		vararg = {}
+		vararg = {};
 		varargSize = select("#", ...) - 1;
 		for i = 0, varargSize do
-			localStack[i] = args[i+1];
-			vararg[i] = args[i+1];
+			localStack[i] = args[i + 1];
+			vararg[i] = args[i + 1];
 		end;
 
 		IP = 1;
