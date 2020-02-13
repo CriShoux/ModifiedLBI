@@ -22,22 +22,22 @@ local luaOpcodes = {
 
 local function getBits(input, n, n2)
 	if n2 then
-		local total = 0
-		local digitn = 0
+		local total = 0;
+		local digitn = 0;
 		for i = n, n2 do
-			total = total + 2^digitn*getBits(input, i)
+			total = total + 2^digitn*getBits(input, i);
 			digitn = digitn + 1
-		end
-		return total
+		end;
+		return total;
 	else
-		local pn = 2^(n-1)
-		return (input % (pn + pn) >= pn) and 1 or 0
-	end
-end
+		local pn = 2^(n-1);
+		return (input % (pn + pn) >= pn) and 1 or 0;
+	end;
+end;
 
 local function decodeBytecode(bytecode)
-	local index = 1
-	local bigEndian = false
+	local index = 1;
+	local bigEndian = false;
     local intSize;
     local sizeT;
 
@@ -134,7 +134,7 @@ local function decodeBytecode(bytecode)
 					instruction.Bx = getBits(data, 15, 32);
 				elseif type == "AsBx" then
 					instruction.sBx = getBits(data, 15, 32) - 131071;
-				end
+				end;
 
 				instructions[i] = instruction;
 			end;
