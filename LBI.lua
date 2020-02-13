@@ -156,7 +156,7 @@ local function decodeBytecode(bytecode)
 					constant.data = getString():sub(1, -2);
 				end;
 
-				constants[i-1] = constant;
+				constants[i - 1] = constant;
 			end;
 		end;
 
@@ -164,7 +164,7 @@ local function decodeBytecode(bytecode)
 		do
 			num = getInt();
 			for i = 1, num do
-				prototypes[i-1] = decodeChunk();
+				prototypes[i - 1] = decodeChunk();
 			end;
 		end;
 
