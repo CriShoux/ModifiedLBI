@@ -108,9 +108,9 @@ local function decodeBytecode(bytecode)
 			num = getInt();
 			for i = 1, num do
 				local instruction = {
-					-- opcode
-					-- opcode name
-					-- type = [ABC, ABx, AsBx]
+					opcode = nil,
+					name = nil,
+					type = nil
 					-- A, B, C, A Bx, or A sBx
 				};
 
@@ -141,19 +141,16 @@ local function decodeBytecode(bytecode)
 		do
 			num = getInt();
 			for i = 1, num do
-				local constant = {
-					-- constant type;
-					-- constant data;
-				};
+				local constant = {};
+
 				local type = getInt8();
-				constant.type = type;
 
 				if type == 1 then
-					constant.data = (getInt8() ~= 0);
+					constant[1] = (getInt8() ~= 0);
 				elseif type == 3 then
-					constant.data = getFloat64();
+					constant[1] = getFloat64();
 				elseif type == 4 then
-					constant.data = getString():sub(1, -2);
+					constant[1] = getString():sub(1, -2);
 				end;
 
 				constants[i - 1] = constant;
@@ -236,7 +233,7 @@ local function createWrapper(cache, upvalues)
 	local prototypes = cache.prototypes;
 
 	local stack, top;
-	local environment;
+	local environment = getfenv();
 	local IP = 1;
 	local vararg, varargSize;
 
@@ -245,7 +242,7 @@ local function createWrapper(cache, upvalues)
 			stack[instruction.A] = stack[instruction.B];
 		end,
 		function(instruction) -- LOADK
-			stack[instruction.A] = constants[instruction.Bx].data;
+			stack[instruction.A] = constants[instruction.Bx][1];
 		end,
 		function(instruction) -- LOADBOOL
 			stack[instruction.A] = instruction.B ~= 0
@@ -263,17 +260,17 @@ local function createWrapper(cache, upvalues)
 			stack[instruction.A] = upvalues[instruction.B];
 		end,
 		function(instruction) -- GETGLOBAL
-			local key = constants[instruction.Bx].data;
+			local key = constants[instruction.Bx][1];
 			stack[instruction.A] = environment[key];
 		end,
 		function(instruction) -- GETTABLE
 			local C = instruction.C;
 			local stack = stack;
-			C = C > 255 and constants[C-256].data or stack[C];
+			C = C > 255 and constants[C-256][1] or stack[C];
 			stack[instruction.A] = stack[instruction.B][C];
 		end,
 		function(instruction) -- SETGLOBAL
-			local key = constants[instruction.Bx].data;
+			local key = constants[instruction.Bx][1];
 			environment[key] = stack[instruction.A];
 		end,
 		function(instruction) -- SETUPVAL
@@ -284,8 +281,8 @@ local function createWrapper(cache, upvalues)
 			local C = instruction.C;
 			local stack, constants = stack, constants;
 
-			B = B > 255 and constants[B-256].data or stack[B];
-			C = C > 255 and constants[C-256].data or stack[C];
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 
 			stack[instruction.A][B] = C
 		end,
@@ -299,7 +296,7 @@ local function createWrapper(cache, upvalues)
 			local stack = stack;
 
 			B = stack[B]
-			C = C > 255 and constants[C-256].data or stack[C];
+			C = C > 255 and constants[C-256][1] or stack[C];
 
 			stack[A+1] = B;
 			stack[A] = B[C];
@@ -309,8 +306,8 @@ local function createWrapper(cache, upvalues)
 			local C = instruction.C;
 			local stack, constants = stack, constants;
 
-			B = B > 255 and constants[B-256].data or stack[B];
-			C = C > 255 and constants[C-256].data or stack[C];
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 
 			stack[instruction.A] = B+C;
 		end,
@@ -319,8 +316,8 @@ local function createWrapper(cache, upvalues)
 			local C = instruction.C;
 			local stack, constants = stack, constants;
 
-			B = B > 255 and constants[B-256].data or stack[B];
-			C = C > 255 and constants[C-256].data or stack[C];
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 
 			stack[instruction.A] = B - C;
 		end,
@@ -329,8 +326,8 @@ local function createWrapper(cache, upvalues)
 			local C = instruction.C;
 			local stack, constants = stack, constants;
 
-			B = B > 255 and constants[B-256].data or stack[B];
-			C = C > 255 and constants[C-256].data or stack[C];
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 
 			stack[instruction.A] = B * C;
 		end,
@@ -339,8 +336,8 @@ local function createWrapper(cache, upvalues)
 			local C = instruction.C;
 			local stack, constants = stack, constants;
 
-			B = B > 255 and constants[B-256].data or stack[B];
-			C = C > 255 and constants[C-256].data or stack[C];
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 
 			stack[instruction.A] = B / C;
 		end,
@@ -349,8 +346,8 @@ local function createWrapper(cache, upvalues)
 			local C = instruction.C;
 			local stack, constants = stack, constants;
 
-			B = B > 255 and constants[B-256].data or stack[B];
-			C = C > 255 and constants[C-256].data or stack[C];
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 
 			stack[instruction.A] = B % C;
 		end,
@@ -359,8 +356,8 @@ local function createWrapper(cache, upvalues)
 			local C = instruction.C;
 			local stack, constants = stack, constants;
 
-			B = B > 255 and constants[B-256].data or stack[B];
-			C = C > 255 and constants[C-256].data or stack[C];
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 
 			stack[instruction.A] = B ^ C;
 		end,
@@ -391,8 +388,8 @@ local function createWrapper(cache, upvalues)
 			local stack, constants = stack, constants;
 
 			A = A ~= 0;
-			if (B > 255) then B = constants[B-256].data else B = stack[B]; end;
-			if (C > 255) then C = constants[C-256].data else C = stack[C]; end;
+			if (B > 255) then B = constants[B-256][1] else B = stack[B]; end;
+			if (C > 255) then C = constants[C-256][1] else C = stack[C]; end;
 			if (B == C) ~= A then
 				IP = IP + 1
 			end;
@@ -404,8 +401,8 @@ local function createWrapper(cache, upvalues)
 			local stack, constants = stack, constants;
 
 			A = A ~= 0
-			B = B > 255 and constants[B-256].data or stack[B];
-			C = C > 255 and constants[C-256].data or stack[C];
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 			if (B < C) ~= A then
 				IP = IP + 1;
 			end;
@@ -417,8 +414,8 @@ local function createWrapper(cache, upvalues)
 			local stack, constants = stack, constants;
 
 			A = A ~= 0
-			B = B > 255 and constants[B-256].data or stack[B]
-			C = C > 255 and constants[C-256].data or stack[C]
+			B = B > 255 and constants[B-256][1] or stack[B];
+			C = C > 255 and constants[C-256][1] or stack[C];
 			if (B <= C) ~= A then
 				IP = IP + 1;
 			end;
@@ -681,7 +678,6 @@ local function createWrapper(cache, upvalues)
 			vararg[i] = args[i+1];
 		end;
 
-		environment = getfenv();
 		IP = 1;
 		local a, b = coroutine.resume(coroutine.create(runInstructions));
 
