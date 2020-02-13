@@ -117,7 +117,7 @@ local function decodeBytecode(bytecode)
 				local name = luaOpcodes[opcode + 1].name;
 				local type = luaOpcodes[opcode + 1].type;
 
-				instruction.opcode = opcode;
+				instruction[1] = opcode;
 
 				instruction.A = getBits(data, 7, 14);
 				if type == "ABC" then
@@ -616,9 +616,9 @@ local function createWrapper(cache, upvalues)
 			);
 			for i = 1, proto.upvalues do
 				local movement = instructions[IP];
-				if movement.opcode == 0 then -- MOVE
+				if movement[1] == 0 then -- MOVE
 					indices[i-1] = {segment = stack, offset = movement.B};
-				elseif instructions[IP].opcode == 4 then -- GETUPVAL
+				elseif instructions[IP][1] == 4 then -- GETUPVAL
 					indices[i-1] = {segment = upvalues, offset = movement.B};
 				end;
 				IP = IP + 1
@@ -645,7 +645,7 @@ local function createWrapper(cache, upvalues)
 		while true do
 			instruction = instructions[IP];
 			IP = IP + 1;
-			a, b = opcodeFuncs[instruction.opcode + 1](instruction);
+			a, b = opcodeFuncs[instruction[1] + 1](instruction);
 			if a then
 				return b;
 			end;
