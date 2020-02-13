@@ -109,8 +109,6 @@ local function decodeBytecode(bytecode)
 			for i = 1, num do
 				local instruction = {
 					opcode = nil,
-					name = nil,
-					type = nil
 					-- A, B, C, A Bx, or A sBx
 				};
 
@@ -120,8 +118,6 @@ local function decodeBytecode(bytecode)
 				local type = luaOpcodes[opcode + 1].type;
 
 				instruction.opcode = opcode;
-				instruction.name = name;
-				instruction.type = type;
 
 				instruction.A = getBits(data, 7, 14);
 				if type == "ABC" then
