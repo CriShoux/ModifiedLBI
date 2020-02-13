@@ -100,7 +100,7 @@ local function decodeBytecode(bytecode)
 		};
 
         if chunk.name then chunk.name = chunk.name:sub(1, -2); end;
-        
+
 		local num;
 
 		-- Decode Instructions
@@ -603,7 +603,7 @@ local function createWrapper(cache, upvalues)
 		function(instruction) -- CLOSE
 			io.stderr:flush();
 		end,
-		 function(instruction) -- CLOSURE
+		function(instruction) -- CLOSURE
 			local proto = prototypes[instruction.Bx];
 			local instructions = instructions;
 			local stack = stack;
