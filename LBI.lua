@@ -1,8 +1,8 @@
 local luaOpcodes = {
-	{name = "MOVE", type = "ABC"}, {name = "LOADK", type = "ABx"},     
+	{name = "MOVE", type = "ABC"}, {name = "LOADK", type = "ABx"},
 	{name = "LOADBOOL", type = "ABC"}, {name = "LOADNIL", type = "ABC"},
-	{name = "GETUPVAL", type = "ABC"}, {name = "GETGLOBAL", type = "ABx"}, 
-	{name = "GETTABLE", type = "ABC"}, {name = "SETGLOBAL", type = "ABx"}, 
+	{name = "GETUPVAL", type = "ABC"}, {name = "GETGLOBAL", type = "ABx"},
+	{name = "GETTABLE", type = "ABC"}, {name = "SETGLOBAL", type = "ABx"},
 	{name = "SETUPVAL", type = "ABC"}, {name = "SETTABLE", type = "ABC"},
 	{name = "NEWTABLE", type = "ABC"}, {name = "SELF", type = "ABC"},
 	{name = "ADD", type = "ABC"}, {name = "SUB", type = "ABC"},
@@ -142,8 +142,8 @@ local function decodeBytecode(bytecode)
 			num = getInt();
 			for i = 1, num do
 				local constant = {
-					-- type = constant type;
-					-- data = constant data;
+					-- constant type;
+					-- constant data;
 				};
 				local type = getInt8();
 				constant.type = type;
