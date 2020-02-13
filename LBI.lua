@@ -663,7 +663,7 @@ local function createWrapper(cache, upvalues)
 		local localStack = {};
 		local ghostStack = {};
 
-		top = -1
+		top = -1;
 		stack = setmetatable(localStack, {
 			__index = ghostStack;
 			__newindex = function(t, k, v)
@@ -696,11 +696,11 @@ local function createWrapper(cache, upvalues)
 			local output = (name and name .. ":" or "") .. (line and line .. ":" or "") .. b;
 			
 			error(output, 0);
-		end
-	end
+		end;
+	end;
 
 	return func;
-end
+end;
 
 local function interpret(bytecode)
 	return createWrapper(decodeBytecode(bytecode));
