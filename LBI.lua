@@ -243,45 +243,45 @@ local function createWrapper(cache, upvalues)
 	local vararg, varargSize;
 
 	local opcodeFuncs = {
-		[0] = function(instruction)	-- MOVE
+		function(instruction) -- MOVE
 			stack[instruction.A] = stack[instruction.B];
 		end,
-		[1] = function(instruction)	-- LOADK
+		function(instruction) -- LOADK
 			stack[instruction.A] = constants[instruction.Bx].data;
 		end,
-		[2] = function(instruction) -- LOADBOOL
+		function(instruction) -- LOADBOOL
 			stack[instruction.A] = instruction.B ~= 0
 			if instruction.C ~= 0 then
 				IP = IP + 1;
 			end;
 		end,
-		[3] = function(instruction) -- LOADNIL
+		function(instruction) -- LOADNIL
 			local stack = stack
 			for i = instruction.A, instruction.B do
 				stack[i] = nil;
 			end;
 		end,
-		[4] = function(instruction) -- GETUPVAL
+		function(instruction) -- GETUPVAL
 			stack[instruction.A] = upvalues[instruction.B];
 		end,
-		[5] = function(instruction) -- GETGLOBAL
+		function(instruction) -- GETGLOBAL
 			local key = constants[instruction.Bx].data;
 			stack[instruction.A] = environment[key];
 		end,
-		[6] = function(instruction) -- GETTABLE
+		function(instruction) -- GETTABLE
 			local C = instruction.C;
 			local stack = stack;
 			C = C > 255 and constants[C-256].data or stack[C];
 			stack[instruction.A] = stack[instruction.B][C];
 		end,
-		[7] = function(instruction) -- SETGLOBAL
+		function(instruction) -- SETGLOBAL
 			local key = constants[instruction.Bx].data;
 			environment[key] = stack[instruction.A];
 		end,
-		[8] = function (instruction) -- SETUPVAL
+		function(instruction) -- SETUPVAL
 			upvalues[instruction.B] = stack[instruction.A];
 		end,
-		[9] = function (instruction) -- SETTABLE
+		function(instruction) -- SETTABLE
 			local B = instruction.B;
 			local C = instruction.C;
 			local stack, constants = stack, constants;
@@ -291,10 +291,10 @@ local function createWrapper(cache, upvalues)
 
 			stack[instruction.A][B] = C
 		end,
-		[10] = function (instruction) -- NEWTABLE
+		function(instruction) -- NEWTABLE
 			stack[instruction.A] = {}
 		end,
-		[11] = function (instruction) -- SELF
+		function(instruction) -- SELF
 			local A = instruction.A;
 			local B = instruction.B;
 			local C = instruction.C;
@@ -306,7 +306,7 @@ local function createWrapper(cache, upvalues)
 			stack[A+1] = B;
 			stack[A] = B[C];
 		end,
-		[12] = function(instruction) -- ADD
+		function(instruction) -- ADD
 			local B = instruction.B;
 			local C = instruction.C;
 			local stack, constants = stack, constants;
@@ -316,7 +316,7 @@ local function createWrapper(cache, upvalues)
 
 			stack[instruction.A] = B+C;
 		end,
-		[13] = function(instruction) -- SUB
+		function(instruction) -- SUB
 			local B = instruction.B;
 			local C = instruction.C;
 			local stack, constants = stack, constants;
@@ -326,7 +326,7 @@ local function createWrapper(cache, upvalues)
 
 			stack[instruction.A] = B - C;
 		end,
-		[14] = function(instruction) -- MUL
+		function(instruction) -- MUL
 			local B = instruction.B;
 			local C = instruction.C;
 			local stack, constants = stack, constants;
@@ -336,7 +336,7 @@ local function createWrapper(cache, upvalues)
 
 			stack[instruction.A] = B * C;
 		end,
-		[15] = function(instruction) --DIV
+		function(instruction) --DIV
 			local B = instruction.B;
 			local C = instruction.C;
 			local stack, constants = stack, constants;
@@ -346,7 +346,7 @@ local function createWrapper(cache, upvalues)
 
 			stack[instruction.A] = B / C;
 		end,
-		[16] = function(instruction) -- MOD
+		function(instruction) -- MOD
 			local B = instruction.B;
 			local C = instruction.C;
 			local stack, constants = stack, constants;
@@ -356,7 +356,7 @@ local function createWrapper(cache, upvalues)
 
 			stack[instruction.A] = B % C;
 		end,
-		[17] = function(instruction) -- POW
+		function(instruction) -- POW
 			local B = instruction.B;
 			local C = instruction.C;
 			local stack, constants = stack, constants;
@@ -366,16 +366,16 @@ local function createWrapper(cache, upvalues)
 
 			stack[instruction.A] = B ^ C;
 		end,
-		[18] = function(instruction) -- UNM
+		function(instruction) -- UNM
 			stack[instruction.A] = -stack[instruction.B];
 		end,
-		[19] = function(instruction) -- NOT
+		function(instruction) -- NOT
 			stack[instruction.A] = not stack[instruction.B];
 		end,
-		[20] = function(instruction) -- LEN
+		function(instruction) -- LEN
 			stack[instruction.A] = #stack[instruction.B];
 		end,
-		[21] = function(instruction) -- CONCAT
+		function(instruction) -- CONCAT
 			local B = instruction.B;
 			local result = stack[B];
 			for i = B+1, instruction.C do
@@ -383,10 +383,10 @@ local function createWrapper(cache, upvalues)
 			end;
 			stack[instruction.A] = result;
 		end,
-		[22] = function(instruction) -- JUMP
+		function(instruction) -- JUMP
 			IP = IP + instruction.sBx;
 		end,
-		[23] = function(instruction) -- EQ
+		function(instruction) -- EQ
 			local A = instruction.A;
 			local B = instruction.B;
 			local C = instruction.C;
@@ -399,7 +399,7 @@ local function createWrapper(cache, upvalues)
 				IP = IP + 1
 			end;
 		end,
-		[24] = function(instruction) -- LT
+		function(instruction) -- LT
 			local A = instruction.A;
 			local B = instruction.B;
 			local C = instruction.C;
@@ -412,7 +412,7 @@ local function createWrapper(cache, upvalues)
 				IP = IP + 1;
 			end;
 		end,
-		[25] = function(instruction) -- LT
+		function(instruction) -- LT
 			local A = instruction.A;
 			local B = instruction.B;
 			local C = instruction.C;
@@ -425,13 +425,13 @@ local function createWrapper(cache, upvalues)
 				IP = IP + 1;
 			end;
 		end,
-		[26] = function(instruction) -- TEST
+		function(instruction) -- TEST
 			local A = stack[instruction.A];
 			if (not not A) == (instruction.C == 0) then
 				IP = IP + 1;
 			end;
 		end,
-		[27] = function(instruction) -- TESTSET
+		function(instruction) -- TESTSET
 			local stack = stack;
 			local B = stack[instruction.B];
 
@@ -441,7 +441,7 @@ local function createWrapper(cache, upvalues)
 				stack[instruction.A] = B;
 			end;
 		end,
-		[28] = function(instruction) -- CALL
+		function(instruction) -- CALL
 			local A = instruction.A;
 			local B = instruction.B;
 			local C = instruction.C;
@@ -484,7 +484,7 @@ local function createWrapper(cache, upvalues)
 				end
 			end
 		end,
-		[29] = function (instruction) -- TAILCALL
+		function (instruction) -- TAILCALL
 			local A = instruction.A;
 			local B = instruction.B;
 			local C = instruction.C;
@@ -513,7 +513,7 @@ local function createWrapper(cache, upvalues)
 
 			return true, results;
 		end,
-		[30] = function(instruction) -- RETURN
+		function(instruction) -- RETURN
 			local A = instruction.A;
 			local B = instruction.B;
 			local stack = stack;
@@ -537,7 +537,7 @@ local function createWrapper(cache, upvalues)
 			end;
 			return true, output;
 		end,
-		[31] = function(instruction) -- FORLOOP
+		function(instruction) -- FORLOOP
 			local A = instruction.A;
 			local stack = stack;
 
@@ -557,14 +557,14 @@ local function createWrapper(cache, upvalues)
 				end;
 			end;
 		end,
-		[32] = function(instruction) -- FORPREP
+		function(instruction) -- FORPREP
 			local A = instruction.A;
 			local stack = stack;
 
 			stack[A] = stack[A] - stack[A+2];
 			IP = IP + instruction.sBx;
 		end,
-		[33] = function(instruction) -- TFORLOOP
+		function(instruction) -- TFORLOOP
 			local A = instruction.A;
 			local B = instruction.B;
 			local C = instruction.C;
@@ -582,7 +582,7 @@ local function createWrapper(cache, upvalues)
 				IP = IP + 1;
 			end;
 		end,
-		[34] = function(instruction) -- SETLIST
+		function(instruction) -- SETLIST
 			local A = instruction.A;
 			local B = instruction.B;
 			local C = instruction.C;
@@ -602,10 +602,10 @@ local function createWrapper(cache, upvalues)
 				end;
 			end;
 		end,
-		[35] = function(instruction) -- CLOSE
+		function(instruction) -- CLOSE
 			io.stderr:flush();
 		end,
-		[36] = function(instruction) -- CLOSURE
+		 function(instruction) -- CLOSURE
 			local proto = prototypes[instruction.Bx];
 			local instructions = instructions;
 			local stack = stack;
@@ -636,7 +636,7 @@ local function createWrapper(cache, upvalues)
 			local func = createWrapper(proto, newUpvals);
 			stack[instruction.A] = func;
 		end,
-		[37] = function(instruction) -- VARARG
+		function(instruction) -- VARARG
 			local A = instruction.A;
 			local B = instruction.B;
 			local stack, vararg = stack, vararg;
@@ -654,7 +654,7 @@ local function createWrapper(cache, upvalues)
 		while true do
 			instruction = instructions[IP];
 			IP = IP + 1;
-			a, b = opcodeFuncs[instruction.opcode](instruction);
+			a, b = opcodeFuncs[instruction.opcode + 1](instruction);
 			if a then
 				return b;
 			end;
