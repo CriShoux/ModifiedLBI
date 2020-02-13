@@ -86,24 +86,22 @@ local function decodeBytecode(bytecode)
 		};
 
 		local chunk = {
-			instructions = instructions;
-			constants = constants;
-			prototypes = prototypes;
-			debug = debug;
+			name = getString(),
+			firstLine = getInt(),
+			lastLine = getInt(),
+			upvalues = getInt8(),
+			arguments = getInt8(),
+			vararg = getInt8(),
+			stack = getInt8(),
+			instructions = instructions,
+			constants = constants,
+			prototypes = prototypes,
+			debug = debug
 		};
 
+        if chunk.name then chunk.name = chunk.name:sub(1, -2); end;
+        
 		local num;
-
-		chunk.name = getString();
-		chunk.firstLine = getInt();
-		chunk.lastLine = getInt();
-
-        if chunk.name then chunk.name = chunk.name:sub(1, -2); end
-
-		chunk.upvalues = getInt8();
-		chunk.arguments = getInt8();
-		chunk.vararg = getInt8();
-		chunk.stack = getInt8();
 
 		-- Decode Instructions
 		do
