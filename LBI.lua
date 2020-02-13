@@ -635,8 +635,8 @@ local function createWrapper(cache, upvalues)
 			for i = A, A + (B > 0 and B - 1 or varargSize) do
 				stack[i] = vararg[i - A];
 			end;
-		end,
-	}
+		end
+	};
 
 	local function runInstructions()
 		local instructions = instructions;
