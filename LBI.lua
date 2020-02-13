@@ -243,7 +243,7 @@ local function createWrapper(cache, upvalues)
 	local stack, top;
 	local environment;
 	local IP = 1;
-	local vararg, vararg_size;
+	local vararg, varargSize;
 
 	local opcode_funcs = {
 		[0] = function(instruction)	-- MOVE
@@ -592,7 +592,7 @@ local function createWrapper(cache, upvalues)
 			local stack = stack;
 
 			if C == 0 then
-				error("Extended SETLIST")
+				error("Extended SETLIST");
 			else
 				local offset = (C - 1) * 50;
 				local t = stack[A];
@@ -644,7 +644,7 @@ local function createWrapper(cache, upvalues)
 			local B = instruction.B;
 			local stack, vararg = stack, vararg;
 
-			for i = A, A + (B > 0 and B - 1 or vararg_size) do
+			for i = A, A + (B > 0 and B - 1 or varargSize) do
 				stack[i] = vararg[i - A];
 			end;
 		end,
@@ -664,15 +664,6 @@ local function createWrapper(cache, upvalues)
 		end;
 	end;
 
-	local debugging = {
-		get_stack = function()
-			return stack;
-		end;
-		get_IP = function()
-			return IP;
-		end
-	};
-
 	local function func(...)
 		local local_stack = {};
 		local ghost_stack = {};
@@ -689,11 +680,11 @@ local function createWrapper(cache, upvalues)
 		})
 		local args = {...};
 		vararg = {}
-		vararg_size = select("#", ...) - 1
-		for i = 0, vararg_size do
+		varargSize = select("#", ...) - 1;
+		for i = 0, varargSize do
 			local_stack[i] = args[i+1];
-			vararg[i] = args[i+1]
-		end
+			vararg[i] = args[i+1];
+		end;
 
 		environment = getfenv();
 		IP = 1;
@@ -703,7 +694,7 @@ local function createWrapper(cache, upvalues)
 		if a then
 			if b then
 				return unpack(b);
-			end
+			end;
 			return;
 		else
 			local name = cache.name;
@@ -711,10 +702,8 @@ local function createWrapper(cache, upvalues)
 			local err  = b:gsub("(.-:)", "");
 			local output = "";
 
-			output = output .. (name and name .. ":" or "");
-			output = output .. (line and line .. ":" or "");
-			output = output .. b
-
+			output = output .. (name and name .. ":" or "") .. (line and line .. ":" or "") .. b;
+			
 			error(output, 0);
 		end
 	end
@@ -723,9 +712,7 @@ local function createWrapper(cache, upvalues)
 end
 
 local function interpret(bytecode)
-	local cache = decodeBytecode(bytecode);
-	local func = createWrapper(cache);
-	return func;
+	return createWrapper(decodeBytecode(bytecode));
 end;
 
 interpret(string.dump(function()
